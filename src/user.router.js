@@ -7,14 +7,25 @@ router.post("/users/signup", async (req, res) => {
 	try {
 		const user = new User(req.body);
 		await user.save();
+		const token = await user.generateAuthToken();
 		res.status(201).send(user);
 	} catch (error) {
 		res.status(500).send(error);
 	}
 });
 
-router.post("/users/login", (req, res) => {
-	res.send("Login Endpoint");
+router.post("/users/login", async (req, res) => {
+	try {
+		const user = await User.findByCredentials(
+			req.body.email,
+			req.body.password
+		);
+
+		const token = await user.generateAuthToken();
+		res.send({ user, token });
+	} catch (e) {
+		res.status(500).send(e);
+	}
 });
 
 router.post("/users/Logout", (req, res) => {
