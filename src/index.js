@@ -1,22 +1,12 @@
 const express = require("express");
+require("./mongoose.js");
+
+const userRouter = require("./user.router.js");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.use(express.json());
 
-app.post("/users/signup", (req, res) => {
-	res.send("Sign up Endpoint");
-});
-
-app.post("/users/login", (req, res) => {
-	res.send("Login Endpoint");
-});
-
-app.post("/users/Logout", (req, res) => {
-	res.send("Logout Endpoint");
-});
-
-app.post("/users/logoutAll", (req, res) => {
-	res.send("Logout All Endpoint");
-});
+app.use(userRouter);
 
 app.listen(PORT, () => console.log("Server running on port :", PORT));
