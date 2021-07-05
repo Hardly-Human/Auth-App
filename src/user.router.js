@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("./user.model.js");
+const auth = require("./auth.js");
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.post("/users/signup", async (req, res) => {
 		const user = new User(req.body);
 		await user.save();
 		const token = await user.generateAuthToken();
-		res.status(201).send(user);
+		res.status(201).send({ user, token });
 	} catch (error) {
 		res.status(500).send(error);
 	}
@@ -28,12 +29,26 @@ router.post("/users/login", async (req, res) => {
 	}
 });
 
-router.post("/users/Logout", (req, res) => {
-	res.send("Logout Endpoint");
+router.post("/users/Logout", auth, async (req, res) => {
+	try {
+		req.user.tokens = req.user.tokens.filter(
+			(token) => token.token !== req.token
+		);
+		await req.user.save();
+		res.send({ message: "Logout Successful" });
+	} catch (error) {
+		res.status(500).send(error);
+	}
 });
 
-router.post("/users/logoutAll", (req, res) => {
-	res.send("Logout All Endpoint");
+router.post("/users/logoutAll", auth, async (req, res) => {
+	try {
+		req.user.tokens = [];
+		await req.user.save();
+		res.send({ message: "Successfully Logged out of All devices" });
+	} catch (error) {
+		res.status(500).send(error);
+	}
 });
 
 module.exports = router;
